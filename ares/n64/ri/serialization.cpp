@@ -1,10 +1,21 @@
 auto RI::serialize(serializer& s) -> void {
-  s(io.mode);
-  s(io.config);
-  s(io.currentLoad);
-  s(io.select);
-  s(io.refresh);
+  s(io.operatingMode);
+  s(io.stopT);
+  s(io.stopR);
+  s(io.CCtlI);
+  s(io.CCtlEn);
+  s(io.rxSelect);
+  s(io.txSelect);
+  s(io.refreshDelayClean);
+  s(io.refreshDelayDirty);
+  s(io.refreshBank);
+  s(io.refreshEnable);
+  s(io.refreshOptimize);
+  s(io.refreshMultibank);
   s(io.latency);
-  s(io.readError);
-  s(io.writeError);
+  s(io.ackErr);
+  s(io.nackErr);
+  s(io.overRangeErr);
+  s(io.banksValid);
+  s(io.banksDirty);
 }

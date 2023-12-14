@@ -50,7 +50,7 @@ auto MI::writeWord(u32 address, u32 data_, Thread& thread) -> void {
     //MI_INIT_MODE
     io.initializeLength = data.bit(0,6);
     if(data.bit( 7)) io.initializeMode = 0;
-    if(data.bit( 8)) io.initializeMode = 1;
+    if(data.bit( 8)) { io.initializeMode = 1; }
     if(data.bit( 9)) io.ebusTestMode = 0;
     if(data.bit(10)) io.ebusTestMode = 1;
     if(data.bit(11)) mi.lower(MI::IRQ::DP);

@@ -2,6 +2,8 @@ template<u32 Size>
 inline auto Bus::read(u32 address, Thread& thread, const char *peripheral) -> u64 {
   static_assert(Size == Byte || Size == Half || Size == Word || Size == Dual);
 
+  mi.initModeUpdate();
+
   if(address <= 0x03ef'ffff) return rdram.ram.read<Size>(address, peripheral);
   if(address <= 0x03ff'ffff) return rdram.read<Size>(address, thread);
   if(Size == Dual)           return freezeDualRead(address), 0;

@@ -19,16 +19,16 @@ auto Debug::_unhandled(const string& text) -> void {
 }
 
 auto Debug::_unimplemented(const string& text) -> void {
-  if(_unimplementedNotices.find(text)) return;
-  if(_totalNotices++ > 256) return;
+  //if(_unimplementedNotices.find(text)) return;
+  //if(_totalNotices++ > 256) return;
   _unimplementedNotices.append(text);
 
   print(terminal::color::magenta("[unimplemented] "), text, "\n");
 }
 
 auto Debug::_unusual(const string& text) -> void {
-  if(_unusualNotices.find(text)) return;
-  if(_totalNotices++ > 256) return;
+  //if(_unusualNotices.find(text)) return;
+  //if(_totalNotices++ > 256) return;
   _unusualNotices.append(text);
 
   print(terminal::color::cyan("[unusual] "), text, "\n");

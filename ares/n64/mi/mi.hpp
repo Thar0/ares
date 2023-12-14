@@ -22,6 +22,7 @@ struct MI : Memory::RCP<MI> {
   enum class IRQ : u32 { SP, SI, AI, VI, PI, DP };
   auto raise(IRQ) -> void;
   auto lower(IRQ) -> void;
+  auto isRdramRegMode() -> bool;
   auto poll() -> void;
 
   auto power(bool reset) -> void;
@@ -32,6 +33,12 @@ struct MI : Memory::RCP<MI> {
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
+
+  auto initModeUpdate() -> void {
+    if (io.initializeMode == 0)
+        return;
+    io.initializeMode--;
+  }
 
 private:
   struct Interrupt {
@@ -51,6 +58,7 @@ private:
   struct IO {
     n7 initializeLength;
     n1 initializeMode;
+    n1 initializeModeRaised;
     n1 ebusTestMode;
     n1 rdramRegisterSelect;
   } io;
