@@ -4,39 +4,41 @@ auto RI::readWord(u32 address, Thread& thread) -> u32 {
 
   if(address == 0) {
     //RI_MODE
-    data = io.mode;
+    data.bit(0,1) = io.operatingMode;
+    data.bit(2) = io.stopT;
+    data.bit(3) = io.stopR;
   }
 
   if(address == 1) {
     //RI_CONFIG
-    data = io.config;
+    data.bit(0,5) = io.CCtlI;
+    data.bit(6) = io.CCtlEn;
   }
 
   if(address == 2) {
     //RI_CURRENT_LOAD
-    data = io.currentLoad;
+    //TOVERIFY: are bits 1 and 2 sourced from somewhere, or are they fixed to 1?
+    data.bit(0) = io.ackErr;
+    data.bit(1) = 1;
+    data.bit(2) = 1;
+    data.bit(3) = io.stopR;
+    data.bit(4) = io.txSelect.bit(0);
   }
 
   if(address == 3) {
     //RI_SELECT
-    data = io.select;
-    if constexpr(!Accuracy::RDRAM::Broadcasting) {
-      //this register is read by IPL3 to check if RDRAM initialization should be
-      //skipped. if we are forcing it to be skipped, we should also consume
-      //enough cycles to not inadvertently speed up the boot process.
-      //Wave Race 64 Shindou Pak Taiou Version will freeze on the N64 logo if
-      //the SCC count register, which increments at half the CPU clock rate, has
-      //too small a value.
-      //after a cold boot on real hardware with no expansion pak and using the
-      //CIC-NUS-6102 IPL3, upon reaching the test ROM's entry point the count
-      //register was measured to be ~0x1184000.
-      cpu.step(17'641'000 * 2);
-    }
+    data.bit(0,3) = io.rxSelect;
+    data.bit(4,7) = io.txSelect;
   }
 
   if(address == 4) {
     //RI_REFRESH
-    data = io.refresh;
+    data.bit(0,7) = io.refreshDelayClean;
+    data.bit(8,15) = io.refreshDelayDirty;
+    data.bit(16) = io.refreshBank;
+    data.bit(17) = io.refreshEnable;
+    data.bit(18) = io.refreshOptimize;
+    data.bit(19,22) = io.refreshMultibank;
   }
 
   if(address == 5) {
@@ -45,13 +47,16 @@ auto RI::readWord(u32 address, Thread& thread) -> u32 {
   }
 
   if(address == 6) {
-    //RI_RERROR
-    data = io.readError;
+    //RI_ERROR
+    data.bit(0) = io.ackErr;
+    data.bit(1) = io.nackErr;
+    data.bit(2) = io.overRangeErr;
   }
 
   if(address == 7) {
-    //RI_WERROR
-    data = io.writeError;
+    //RI_BANK_STATUS
+    data.bit(0,7) = io.banksValid;
+    data.bit(8,15) = io.banksDirty;
   }
 
   debugger.io(Read, address, data);
@@ -64,27 +69,36 @@ auto RI::writeWord(u32 address, u32 data_, Thread& thread) -> void {
 
   if(address == 0) {
     //RI_MODE
-    io.mode = data;
+    io.operatingMode = data.bit(0,1);
+    io.stopT = data.bit(2);
+    io.stopR = data.bit(3);
   }
 
   if(address == 1) {
     //RI_CONFIG
-    io.config = data;
+    io.CCtlI = data.bit(0,5);
+    io.CCtlEn = data.bit(6);
   }
 
   if(address == 2) {
     //RI_CURRENT_LOAD
-    io.currentLoad = data;
+    //TODO: writes trigger an async load of CCtlI value in the RAC
   }
 
   if(address == 3) {
     //RI_SELECT
-    io.select = data;
+    io.rxSelect = data.bit(0,3);
+    io.txSelect = data.bit(4,7);
   }
 
   if(address == 4) {
     //RI_REFRESH
-    io.refresh = data;
+    io.refreshDelayClean = data.bit(0,7);
+    io.refreshDelayDirty = data.bit(8,15);
+    io.refreshBank = data.bit(16);
+    io.refreshEnable = data.bit(17);
+    io.refreshOptimize = data.bit(18);
+    io.refreshMultibank = data.bit(19,22);
   }
 
   if(address == 5) {
@@ -93,13 +107,18 @@ auto RI::writeWord(u32 address, u32 data_, Thread& thread) -> void {
   }
 
   if(address == 6) {
-    //RI_RERROR
-    io.readError = data;
+    //RI_ERROR
+    //Any write clears bits
+    io.ackErr = 0;
+    io.nackErr = 0;
+    io.overRangeErr = 0;
   }
 
   if(address == 7) {
-    //RI_WERROR
-    io.writeError = data;
+    //RI_BANK_STATUS
+    //Any write resets bits
+    io.banksDirty = 0b11111111;
+    io.banksValid = 0b00000000;
   }
 
   debugger.io(Write, address, data);

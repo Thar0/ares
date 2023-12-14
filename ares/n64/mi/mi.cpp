@@ -43,6 +43,10 @@ auto MI::lower(IRQ source) -> void {
   poll();
 }
 
+auto MI::isRdramRegMode() -> bool {
+  return io.rdramRegisterSelect;
+}
+
 auto MI::poll() -> void {
   bool line = 0;
   line |= irq.sp.line & irq.sp.mask;

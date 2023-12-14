@@ -22,6 +22,7 @@ struct MI : Memory::RCP<MI> {
   enum class IRQ : u32 { SP, SI, AI, VI, PI, DP };
   auto raise(IRQ) -> void;
   auto lower(IRQ) -> void;
+  auto isRdramRegMode() -> bool;
   auto poll() -> void;
 
   auto power(bool reset) -> void;
